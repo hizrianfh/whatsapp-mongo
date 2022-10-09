@@ -2,7 +2,7 @@ import WhatsAppInstance from '../class/Client'
 import { NextFunction, Request, Response } from 'express'
 import config from '../../config/config'
 
-const init = async (req: Request, res: Response) => {
+export const init = async (req: Request, res: Response) => {
     const key = req.query.key
     const webhook = !req.query.webhook ? false : req.query.webhook
     const webhookUrl = !req.query.webhookUrl ? null : req.query.webhookUrl
@@ -24,8 +24,6 @@ const init = async (req: Request, res: Response) => {
         browser: config.browser,
     })
 }
-
-export { init }
 
 // exports.qr = async (req: Request, res: Response) => {
 //     try {
@@ -55,20 +53,20 @@ export { init }
 //     }
 // }
 
-// exports.info = async (req: any, res: Response) => {
-//     const instance = WhatsAppInstances[req.query.key]
-//     let data
-//     try {
-//         data = await instance.getInstanceDetail(req.query.key)
-//     } catch (error) {
-//         data = {}
-//     }
-//     return res.json({
-//         error: false,
-//         message: 'Instance fetched successfully',
-//         instance_data: data,
-//     })
-// }
+export const info = async (req: any, res: Response) => {
+    const instance = WhatsAppInstances[req.query.key]
+    let data
+    try {
+        data = await instance.getInstanceDetail(req.query.key)
+    } catch (error) {
+        data = {}
+    }
+    return res.json({
+        error: false,
+        message: 'Instance fetched successfully',
+        instance_data: data,
+    })
+}
 
 // exports.restore = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
@@ -84,19 +82,19 @@ export { init }
 //     }
 // }
 
-// exports.logout = async (req: Request, res: Response) => {
-//     let errormsg
-//     try {
-//         await WhatsAppInstances[req.query.key].instance?.sock?.logout()
-//     } catch (error) {
-//         errormsg = error
-//     }
-//     return res.json({
-//         error: false,
-//         message: 'logout successfull',
-//         errormsg: errormsg ? errormsg : null,
-//     })
-// }
+export const logout = async (req: any, res: Response) => {
+    let errormsg
+    try {
+        await WhatsAppInstances[req.query.key].instance?.socket?.logout()
+    } catch (error) {
+        errormsg = error
+    }
+    return res.json({
+        error: false,
+        message: 'logout successfull',
+        errormsg: errormsg ? errormsg : null,
+    })
+}
 
 // exports.delete = async (req: Request, res: Response) => {
 //     let errormsg
@@ -113,29 +111,30 @@ export { init }
 //     })
 // }
 
-// exports.list = async (req: Request, res: Response) => {
-//     if (req.query.active) {
-//         let instance = Object.keys(WhatsAppInstances).map(async (key) =>
-//             WhatsAppInstances[key].getInstanceDetail(key)
-//         )
-//         let data = await Promise.all(instance)
-//         return res.json({
-//             error: false,
-//             message: 'All active instance',
-//             data: data,
-//         })
-//     } else {
-//         let instance = []
-//         const db = mongoClient.db('whatsapp-api')
-//         const result = await db.listCollections().toArray()
-//         result.forEach((collection) => {
-//             instance.push(collection.name)
-//         })
+export const list = async (req: Request, res: Response) => {
+    if (req.query.active) {
+        let instance = Object.keys(WhatsAppInstances).map(async (key) =>
+            WhatsAppInstances[key].getInstanceDetail(key)
+        )
+        let data = await Promise.all(instance)
+        return res.json({
+            error: false,
+            message: 'All active instance',
+            data: data,
+        })
+    } else {
+        let instance: string[] = []
+        const db = mongoClient
+        const result = await db.listCollections().toArray()
+        result.forEach((collection) => {
+            const colType = collection.name.split('-')
+            if (colType[0] === 'auth') instance.push(colType.slice(1).join('-'))
+        })
 
-//         return res.json({
-//             error: false,
-//             message: 'All instance listed',
-//             data: instance,
-//         })
-//     }
-// }
+        return res.json({
+            error: false,
+            message: 'All instance listed',
+            data: instance,
+        })
+    }
+}

@@ -1,5 +1,6 @@
 import express from 'express'
 import path from 'path'
+import Client from '../api/class/Client'
 const app = express()
 
 app.use(express.json())
@@ -9,10 +10,8 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '../api/views'))
 
 declare global {
-    function myFunction(): boolean;
-    var WhatsAppInstances: any;
-  }
-  
+  var WhatsAppInstances: { [key: string]: Client };
+}
 
 global.WhatsAppInstances = {}
 

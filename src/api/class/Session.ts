@@ -1,6 +1,6 @@
 /* eslint-disable no-unsafe-optional-chaining */
 import WhatsAppInstance from '../class/Client'
-const logger = require('pino')()
+import { logger } from '../utils';
 
 class Session {
     async restoreSessions() {

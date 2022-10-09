@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { makeMongoStore } from '../store';
 import { makeMongoAuthState } from '../state';
-import { Db } from 'mongodb';
+import { Collection, Db } from 'mongodb';
 
 
 export default class Client {
@@ -21,11 +21,13 @@ export default class Client {
 	store!: Awaited<ReturnType<typeof makeMongoStore>>;
 	// socket: ReturnType<typeof makeWASocket> | null;
 	events: { event: string; on: () => void }[];
+	collection!: Collection
 	// handler: Handler | undefined;
 
-	instance: { key: string, socket: ReturnType<typeof makeWASocket> | null } = {
+	instance: { key: string, socket: ReturnType<typeof makeWASocket> | null, online: boolean } = {
 		key: this.key,
-		socket: null
+		socket: null,
+		online: false
 	}
 
 	constructor(key?: any) {
@@ -37,6 +39,7 @@ export default class Client {
 
 	async init(mongoDB: Db) {
 		const authCollection = mongoDB.collection(`auth-${this.key}`)
+		this.collection = authCollection
 		const { state, saveCreds } = await makeMongoAuthState(authCollection)
 		this.store = await makeMongoStore(mongoDB, this.key);
 
@@ -78,8 +81,18 @@ export default class Client {
 					this.init(mongoDB);
 					return;
 				} else {
-					throw new Error(`Connection closed due to: Logged Out`);
+					mongoDB.collection(`messages-${this.key}`).drop().then(
+						() => {
+							this.collection.drop().then(() => {
+								this.instance.online = false
+
+								logger.info('STATE: Dropped collection')
+							})
+						}
+					)
 				}
+			} else if (connection === 'open') {
+				this.instance.online = true
 			}
 		});
 
@@ -99,6 +112,15 @@ export default class Client {
 		await socket?.sendMessage(to, { text: message })
 
 	}
+
+	async getInstanceDetail(key: string) {
+		return {
+			instance_key: key,
+			phone_connected: this.instance?.online,
+			user: this.instance?.online ? this.instance.socket?.user : {},
+		}
+	}
+
 
 	onMessage(callback: (message: WAMessage) => void) {
 		this.events.push({

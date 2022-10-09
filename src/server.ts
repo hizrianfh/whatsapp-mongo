@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-const logger = require('pino')()
+import { logger } from './api/utils';
 dotenv.config()
 
 import app from './config/express'

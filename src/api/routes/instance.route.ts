@@ -1,16 +1,16 @@
 import express from 'express'
-import { init } from '../controllers/instance.controller'
+import * as controller from '../controllers/instance.controller'
 import keyVerify from '../middlewares/keyCheck'
 import loginVerify from '../middlewares/loginCheck'
 
 const router = express.Router()
-router.route('/init').get(init)
+router.route('/init').get(controller.init)
 // router.route('/qr').get(keyVerify, controller.qr)
 // router.route('/qrbase64').get(keyVerify, controller.qrbase64)
-// router.route('/info').get(keyVerify, controller.info)
+router.route('/info').get(keyVerify, controller.info)
 // router.route('/restore').get(controller.restore)
-// router.route('/logout').delete(keyVerify, loginVerify, controller.logout)
+router.route('/logout').delete(keyVerify, loginVerify, controller.logout)
 // router.route('/delete').delete(keyVerify, loginVerify, controller.delete)
-// router.route('/list').get(controller.list)
+router.route('/list').get(controller.list)
 
 export default router
