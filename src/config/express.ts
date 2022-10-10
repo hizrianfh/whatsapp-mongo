@@ -1,7 +1,11 @@
 import express from 'express'
 import path from 'path'
 import Client from '../api/class/Client'
-import error from '../api/middlewares/error'
+// @ts-ignore
+import exceptionHandler from 'express-exception-handler'
+exceptionHandler.handle()
+
+import error from "../api/middlewares/error"
 
 const app = express()
 
@@ -20,16 +24,6 @@ global.WhatsAppInstances = new Map<string, Client>()
 import routes from '../api/routes/'
 
 app.use('/', routes)
-app.use((err: any, req: any, res: any, next: any) => {
-  const statusCode = err.statusCode ? err.statusCode : 500
-
-  res.setHeader('Content-Type', 'application/json')
-  res.status(statusCode)
-  res.json({
-    error: true,
-    code: statusCode,
-    message: err.message,
-  })
-})
+app.use(error.handler)
 
 export default app

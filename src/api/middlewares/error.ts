@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
-// import APIError from '../../api/errors/api.error'
+// import APIError from '../errors/api.error'
 
-import { NextFunction, Request, Response } from "express"
-
-const handler = (err: any, req: Request, res: Response, next: NextFunction) => {
+const handler = (err: any, req: any, res: any, next: any) => {
     const statusCode = err.statusCode ? err.statusCode : 500
 
     res.setHeader('Content-Type', 'application/json')
