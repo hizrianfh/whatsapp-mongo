@@ -7,7 +7,7 @@ function loginVerification(req: Request, res: Response, next: NextFunction) {
             .status(403)
             .send({ error: true, message: 'no key query was present' })
     }
-    const instance = WhatsAppInstances[key]
+    const instance = WhatsAppInstances.get(key)!
     if (!instance.instance?.online) {
         return res
             .status(401)

@@ -10,10 +10,10 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '../api/views'))
 
 declare global {
-  var WhatsAppInstances: { [key: string]: Client };
+  var WhatsAppInstances: Map<string, Client>;
 }
 
-global.WhatsAppInstances = {}
+global.WhatsAppInstances = new Map<string, Client>()
 
 import routes from '../api/routes/'
 

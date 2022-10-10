@@ -9,7 +9,7 @@ export const init = async (req: Request, res: Response) => {
     const appUrl = config.appUrl || req.protocol + '://' + req.headers.host
     const instance = new WhatsAppInstance(key)
     const data = await instance.init(mongoClient)
-    WhatsAppInstances[data.key] = instance
+    WhatsAppInstances.set(data.key, instance)
     res.json({
         error: false,
         message: 'Initializing successfully',
@@ -27,7 +27,7 @@ export const init = async (req: Request, res: Response) => {
 
 // exports.qr = async (req: Request, res: Response) => {
 //     try {
-//         const qrcode = await WhatsAppInstances[req.query.key]?.instance.qr
+//         const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
 //         res.render('qrcode', {
 //             qrcode: qrcode,
 //         })
@@ -40,7 +40,7 @@ export const init = async (req: Request, res: Response) => {
 
 // exports.qrbase64 = async (req: Request, res: Response) => {
 //     try {
-//         const qrcode = await WhatsAppInstances[req.query.key]?.instance.qr
+//         const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
 //         res.json({
 //             error: false,
 //             message: 'QR Base64 fetched successfully',
@@ -54,7 +54,7 @@ export const init = async (req: Request, res: Response) => {
 // }
 
 export const info = async (req: any, res: Response) => {
-    const instance = WhatsAppInstances[req.query.key]
+    const instance = WhatsAppInstances.get(req.query.key)!
     let data
     try {
         data = await instance.getInstanceDetail(req.query.key)
@@ -85,7 +85,7 @@ export const info = async (req: any, res: Response) => {
 export const logout = async (req: any, res: Response) => {
     let errormsg
     try {
-        await WhatsAppInstances[req.query.key].instance?.socket?.logout()
+        await WhatsAppInstances.get(req.query.key)!.instance?.socket?.logout()
     } catch (error) {
         errormsg = error
     }
@@ -99,8 +99,8 @@ export const logout = async (req: any, res: Response) => {
 // exports.delete = async (req: Request, res: Response) => {
 //     let errormsg
 //     try {
-//         await WhatsAppInstances[req.query.key].instance?.sock?.logout()
-//         delete WhatsAppInstances[req.query.key]
+//         await WhatsAppInstances.get(req.query.key).instance?.sock?.logout()
+//         delete WhatsAppInstances.get(req.query.key)
 //     } catch (error) {
 //         errormsg = error
 //     }
@@ -114,7 +114,7 @@ export const logout = async (req: any, res: Response) => {
 export const list = async (req: Request, res: Response) => {
     if (req.query.active) {
         let instance = Object.keys(WhatsAppInstances).map(async (key) =>
-            WhatsAppInstances[key].getInstanceDetail(key)
+            WhatsAppInstances.get(key)!.getInstanceDetail(key)
         )
         let data = await Promise.all(instance)
         return res.json({

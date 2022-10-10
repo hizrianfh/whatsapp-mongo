@@ -24,7 +24,7 @@ class Session {
                             key
                         )
                         await instance.init(db)
-                        WhatsAppInstances[key] = instance
+                        WhatsAppInstances.set(key, instance)
                     })
                 restoredSessions.push(key)
             })

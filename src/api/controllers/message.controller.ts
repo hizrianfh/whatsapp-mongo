@@ -1,7 +1,7 @@
 import { Response } from "express"
 
-exports.Text = async (req: any, res: Response) => {
-    const data = await WhatsAppInstances[req.query.key].sendTextMessage(
+export const Text = async (req: any, res: Response) => {
+    const data = await WhatsAppInstances.get(req.query.key)!.sendTextMessage(
         req.body.id,
         req.body.message
     )
@@ -9,7 +9,7 @@ exports.Text = async (req: any, res: Response) => {
 }
 
 // exports.Image = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendMediaFile(
+//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'image',
@@ -19,7 +19,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.Video = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendMediaFile(
+//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'video',
@@ -29,7 +29,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.Audio = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendMediaFile(
+//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'audio'
@@ -38,7 +38,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.Document = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendMediaFile(
+//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'document',
@@ -49,7 +49,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.Mediaurl = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendUrlMediaFile(
+//     const data = await WhatsAppInstances.get(req.query.key).sendUrlMediaFile(
 //         req.body.id,
 //         req.body.url,
 //         req.body.type, // Types are [image, video, audio, document]
@@ -61,7 +61,7 @@ exports.Text = async (req: any, res: Response) => {
 
 // exports.Button = async (req, res) => {
 //     // console.log(res.body)
-//     const data = await WhatsAppInstances[req.query.key].sendButtonMessage(
+//     const data = await WhatsAppInstances.get(req.query.key).sendButtonMessage(
 //         req.body.id,
 //         req.body.btndata
 //     )
@@ -69,7 +69,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.Contact = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendContactMessage(
+//     const data = await WhatsAppInstances.get(req.query.key).sendContactMessage(
 //         req.body.id,
 //         req.body.vcard
 //     )
@@ -77,7 +77,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.List = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendListMessage(
+//     const data = await WhatsAppInstances.get(req.query.key).sendListMessage(
 //         req.body.id,
 //         req.body.msgdata
 //     )
@@ -85,7 +85,7 @@ exports.Text = async (req: any, res: Response) => {
 // }
 
 // exports.MediaButton = async (req, res) => {
-//     const data = await WhatsAppInstances[req.query.key].sendMediaButtonMessage(
+//     const data = await WhatsAppInstances.get(req.query.key).sendMediaButtonMessage(
 //         req.body.id,
 //         req.body.btndata
 //     )
@@ -108,7 +108,7 @@ exports.Text = async (req: any, res: Response) => {
 //         })
 //     }
 
-//     const data = await WhatsAppInstances[req.query.key]?.setStatus(
+//     const data = await WhatsAppInstances.get(req.query.key)?.setStatus(
 //         req.body.status,
 //         req.body.id
 //     )

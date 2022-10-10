@@ -8,6 +8,10 @@ import makeWASocket, {
 
 // import type Handler from './CommandHandler';
 
+import QRCode from 'qrcode'
+import config from '../../config/config';
+
+
 import { logger } from '../utils';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,8 +28,10 @@ export default class Client {
 	collection!: Collection
 	// handler: Handler | undefined;
 
-	instance: { key: string, socket: ReturnType<typeof makeWASocket> | null, online: boolean } = {
+	instance: { key: string, socket: ReturnType<typeof makeWASocket> | null, qr: string, qrRetry: number, online: boolean } = {
 		key: this.key,
+		qr: '',
+		qrRetry: 0,
 		socket: null,
 		online: false
 	}
@@ -66,7 +72,7 @@ export default class Client {
 		})
 
 		this.instance.socket.ev.on('connection.update', (update) => {
-			const { connection, lastDisconnect, receivedPendingNotifications } = update;
+			const { connection, lastDisconnect, receivedPendingNotifications, qr } = update;
 
 			// if (receivedPendingNotifications && process.env.OWNER) {
 			// 	this.instance.socket!.sendMessage(process.env.OWNER, {
@@ -94,6 +100,24 @@ export default class Client {
 			} else if (connection === 'open') {
 				this.instance.online = true
 			}
+
+			if (qr) {
+                QRCode.toDataURL(qr).then((url) => {
+                    this.instance.qr = url
+                    this.instance.qrRetry++
+                    if (this.instance.qrRetry >= config.instance.maxRetryQr) {
+                        // close WebSocket connection
+                        this.instance.socket!.ws.close()
+                        // remove all events
+                        this.instance.socket!.ev.removeAllListeners('connection.update')
+                        this.instance.socket!.ev.removeAllListeners('creds.update')
+                        this.instance.socket!.ev.removeAllListeners('messages.upsert')
+                        this.instance.qr = ' '
+                        logger.info('socket connection terminated')
+                    }
+                })
+            }
+			
 		});
 
 		this.instance.socket.ev.on('creds.update', saveCreds);
@@ -106,10 +130,29 @@ export default class Client {
 
 	}
 
+
+	getWhatsAppId(id: string) {
+		if (id.includes('@g.us') || id.includes('@s.whatsapp.net')) return id
+		return id.includes('-') ? `${id}@g.us` : `${id}@s.whatsapp.net`
+	}
+
+	async verifyId(id: string) {
+		if (id.includes('@g.us')) return true
+		let exists: boolean = false;
+		(await this.instance.socket?.onWhatsApp(id))?.map(r => exists = r.exists)
+
+		if (exists) return true
+		throw new Error('no account exists')
+	}
+
 	async sendTextMessage(to: string, message: string) {
 		const socket = this.instance.socket
 
-		await socket?.sendMessage(to, { text: message })
+		await this.verifyId(this.getWhatsAppId(to))
+
+		const data = await socket?.sendMessage(this.getWhatsAppId(to), { text: message })
+
+        return data
 
 	}
 
