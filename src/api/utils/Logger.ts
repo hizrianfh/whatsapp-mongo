@@ -9,11 +9,7 @@ const pinoStream = pinoPretty({
   messageFormat: '{msg}',
   customPrettifiers: {
     time: (timestamp: any) => {
-      const d = new Date(timestamp);
-      const hours = d.getHours();
-      const min = d.getMinutes();
-      const sec = d.getSeconds();
-      return `${hours}:${min}:${sec}`;
+      return `${timestamp.split('.')[0]}`;
     }
   }
 })

@@ -13,22 +13,24 @@ export default async (mongoDB: Db, key: string) => {
   const chatsCol = db.collection(`chats-${key}`);
 
 
-  const assertMessagesList = async (jid: string) => {
+  const assertMessagesList = async (jid: string, message: WAMessage) => {
     const id = jidNormalizedUser(jid);
     const user = await messagesCol.findOne({ id });
 
     if (!user) {
-      await messagesCol.insertOne({ id, messages: [] });
+      await messagesCol.insertOne({ id, messages: [], name: message.pushName });
 
       return await messagesCol.findOne({ id });
 
     }
 
+    if (!user.name && !message.key.fromMe && message.pushName) await messagesCol.updateOne({ id }, { $set: { name: message.pushName } })
+
     return user;
   }
 
   const insertMessage = async (message: WAMessage, history: boolean = false) => {
-    const userDoc = await assertMessagesList(message.key.remoteJid!);
+    const userDoc = await assertMessagesList(message.key.remoteJid!, message);
 
     history ? userDoc!.messages.unshift(message) : userDoc!.messages.push(message);
 
@@ -114,6 +116,17 @@ export default async (mongoDB: Db, key: string) => {
 
       return msg;
     },
+
+    loadAllMessage: async (jid: string, limit: number = 0) => {
+      const messageCol = await messagesCol.findOne({ id: jidNormalizedUser(jid) })
+      if (!messageCol) throw new Error('Jid not found');
+
+      const messages: WAMessage[] = messageCol.messages.slice(limit * -1);
+
+      return messages
+
+    },
+
     deleteAllMessagesFromContact: async (jid: string) => {
       const result = await messagesCol.deleteOne({ id: jidNormalizedUser(jid) });
 
@@ -123,10 +136,13 @@ export default async (mongoDB: Db, key: string) => {
     },
     getAllMessagesJids: async () => {
       const result = messagesCol.find();
-      let docs: string[] = [];
+      let docs: any[] = [];
 
       await result.forEach((doc) => {
-        docs.push(doc.id);
+        docs.push({
+          id: doc.id,
+          name: doc.name
+        });
       })
 
       return docs;

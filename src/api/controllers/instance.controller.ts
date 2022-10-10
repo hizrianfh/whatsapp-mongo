@@ -2,7 +2,7 @@ import WhatsAppInstance from '../class/Client'
 import { NextFunction, Request, Response } from 'express'
 import config from '../../config/config'
 
-export const init = async (req: Request, res: Response) => {
+export const init = async (req: any, res: Response) => {
     const key = req.query.key
     const webhook = !req.query.webhook ? false : req.query.webhook
     const webhookUrl = !req.query.webhookUrl ? null : req.query.webhookUrl

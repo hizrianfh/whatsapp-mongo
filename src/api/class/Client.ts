@@ -102,22 +102,22 @@ export default class Client {
 			}
 
 			if (qr) {
-                QRCode.toDataURL(qr).then((url) => {
-                    this.instance.qr = url
-                    this.instance.qrRetry++
-                    if (this.instance.qrRetry >= config.instance.maxRetryQr) {
-                        // close WebSocket connection
-                        this.instance.socket!.ws.close()
-                        // remove all events
-                        this.instance.socket!.ev.removeAllListeners('connection.update')
-                        this.instance.socket!.ev.removeAllListeners('creds.update')
-                        this.instance.socket!.ev.removeAllListeners('messages.upsert')
-                        this.instance.qr = ' '
-                        logger.info('socket connection terminated')
-                    }
-                })
-            }
-			
+				QRCode.toDataURL(qr).then((url) => {
+					this.instance.qr = url
+					this.instance.qrRetry++
+					if (this.instance.qrRetry >= config.instance.maxRetryQr) {
+						// close WebSocket connection
+						this.instance.socket!.ws.close()
+						// remove all events
+						this.instance.socket!.ev.removeAllListeners('connection.update')
+						this.instance.socket!.ev.removeAllListeners('creds.update')
+						this.instance.socket!.ev.removeAllListeners('messages.upsert')
+						this.instance.qr = ' '
+						logger.info('socket connection terminated')
+					}
+				})
+			}
+
 		});
 
 		this.instance.socket.ev.on('creds.update', saveCreds);
@@ -152,7 +152,7 @@ export default class Client {
 
 		const data = await socket?.sendMessage(this.getWhatsAppId(to), { text: message })
 
-        return data
+		return data
 
 	}
 
@@ -162,6 +162,14 @@ export default class Client {
 			phone_connected: this.instance?.online,
 			user: this.instance?.online ? this.instance.socket?.user : {},
 		}
+	}
+
+	async getAllChats() {
+		return await this.store.getAllMessagesJids()
+	}
+
+	async getAllMessages(id: string, limit: number) {
+		return await this.store.loadAllMessage(id, limit)
 	}
 
 
