@@ -9,5 +9,29 @@ services:
             - 27017:27017
         volumes:
             - db:/data/db
+            
+    app:
+        container_name: api
+        depends_on:
+            - mongodb
+        user: 'node'
+        restart: unless-stopped
+        env_file: .env
+        command: sh -c "yarn build && yarn start"
+        ports:
+            - ${PORT}:${PORT}
+        environment:
+            - TOKEN=${TOKEN}
+            - PORT=${PORT}
+            - MONGODB_ENABLED=${MONGODB_ENABLED}
+            - MONGODB_URI=mongodb://mongodb:27017
+            - WEBHOOK_ENABLED=${WEBHOOK_ENABLED}
+            - WEBHOOK_URL=${WEBHOOK_URL}
+            - WEBHOOK_BASE64=${WEBHOOK_BASE64}
+        volumes:
+            - ./:/home/node/app
+        working_dir: /home/node/app
+        image: node:18-alpine3.15
+
 volumes:
     db:
