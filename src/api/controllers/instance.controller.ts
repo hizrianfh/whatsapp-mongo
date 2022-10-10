@@ -38,20 +38,20 @@ export const init = async (req: Request, res: Response) => {
 //     }
 // }
 
-// exports.qrbase64 = async (req: Request, res: Response) => {
-//     try {
-//         const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
-//         res.json({
-//             error: false,
-//             message: 'QR Base64 fetched successfully',
-//             qrcode: qrcode,
-//         })
-//     } catch {
-//         res.json({
-//             qrcode: '',
-//         })
-//     }
-// }
+export const qrbase64 = async (req: any, res: Response) => {
+    try {
+        const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
+        res.json({
+            error: false,
+            message: 'QR Base64 fetched successfully',
+            qrcode: qrcode,
+        })
+    } catch {
+        res.json({
+            qrcode: '',
+        })
+    }
+}
 
 export const info = async (req: any, res: Response) => {
     const instance = WhatsAppInstances.get(req.query.key)!
