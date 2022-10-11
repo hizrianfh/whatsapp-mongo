@@ -2,8 +2,8 @@ import WhatsAppInstance from '../class/Client'
 import { NextFunction, Request, Response } from 'express'
 import config from '../../config/config'
 
-export const init = async (req: any, res: Response) => {
-    const key = req.query.key
+export const init = async (req: Request, res: Response) => {
+    const key = req.query.key as string
     const webhook = !req.query.webhook ? false : req.query.webhook
     const webhookUrl = !req.query.webhookUrl ? null : req.query.webhookUrl
     const appUrl = config.appUrl || req.protocol + '://' + req.headers.host
@@ -27,7 +27,7 @@ export const init = async (req: any, res: Response) => {
 
 // exports.qr = async (req: Request, res: Response) => {
 //     try {
-//         const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
+//         const qrcode = await WhatsAppInstances.get(req.query.key as string)?.instance.qr
 //         res.render('qrcode', {
 //             qrcode: qrcode,
 //         })
@@ -38,9 +38,9 @@ export const init = async (req: any, res: Response) => {
 //     }
 // }
 
-export const qrbase64 = async (req: any, res: Response) => {
+export const qrbase64 = async (req: Request, res: Response) => {
     try {
-        const qrcode = await WhatsAppInstances.get(req.query.key)?.instance.qr
+        const qrcode = await WhatsAppInstances.get(req.query.key as string)?.instance.qr
         res.json({
             error: false,
             message: 'QR Base64 fetched successfully',
@@ -53,11 +53,11 @@ export const qrbase64 = async (req: any, res: Response) => {
     }
 }
 
-export const info = async (req: any, res: Response) => {
-    const instance = WhatsAppInstances.get(req.query.key)!
+export const info = async (req: Request, res: Response) => {
+    const instance = WhatsAppInstances.get(req.query.key as string)!
     let data
     try {
-        data = await instance.getInstanceDetail(req.query.key)
+        data = await instance.getInstanceDetail(req.query.key as string)
     } catch (error) {
         data = {}
     }
@@ -82,10 +82,10 @@ export const info = async (req: any, res: Response) => {
 //     }
 // }
 
-export const logout = async (req: any, res: Response) => {
+export const logout = async (req: Request, res: Response) => {
     let errormsg
     try {
-        await WhatsAppInstances.get(req.query.key)!.instance?.socket?.logout()
+        await WhatsAppInstances.get(req.query.key as string)!.instance?.socket?.logout()
     } catch (error) {
         errormsg = error
     }
@@ -99,8 +99,8 @@ export const logout = async (req: any, res: Response) => {
 // exports.delete = async (req: Request, res: Response) => {
 //     let errormsg
 //     try {
-//         await WhatsAppInstances.get(req.query.key).instance?.sock?.logout()
-//         delete WhatsAppInstances.get(req.query.key)
+//         await WhatsAppInstances.get(req.query.key as string).instance?.sock?.logout()
+//         delete WhatsAppInstances.get(req.query.key as string)
 //     } catch (error) {
 //         errormsg = error
 //     }

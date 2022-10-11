@@ -3,7 +3,9 @@ import makeWASocket, {
 	DisconnectReason,
 	WAMessage,
 	Chat,
-	makeCacheableSignalKeyStore
+	makeCacheableSignalKeyStore,
+	AnyMessageContent,
+	AnyMediaMessageContent
 } from '@adiwajshing/baileys';
 
 // import type Handler from './CommandHandler';
@@ -155,6 +157,22 @@ export default class Client {
 		return data
 
 	}
+
+	async sendMediaFile(to: string, file: any, type: string, caption = '', filename?: string) {
+        await this.verifyId(this.getWhatsAppId(to))
+        const data = await this.instance.socket?.sendMessage(
+			this.getWhatsAppId(to),
+			//@ts-ignore
+            {	
+				[type]: file.buffer,
+				mimetype: file.mimetype,
+				caption: caption,
+				ptt: type === 'audio' ? true : false,
+				fileName: filename ? filename : file.originalname		
+			}
+        )
+        return data
+    }
 
 	async getInstanceDetail(key: string) {
 		return {

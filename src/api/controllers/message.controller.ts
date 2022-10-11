@@ -1,25 +1,25 @@
-import { Response } from "express"
+import { Request, Response } from "express"
 
-export const Text = async (req: any, res: Response) => {
-    const data = await WhatsAppInstances.get(req.query.key)!.sendTextMessage(
+export const Text = async (req: Request, res: Response) => {
+    const data = await WhatsAppInstances.get(req.query.key as string)!.sendTextMessage(
         req.body.id,
         req.body.message
     )
     return res.status(201).json({ error: false, data: data })
 }
 
-// exports.Image = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
-//         req.body.id,
-//         req.file,
-//         'image',
-//         req.body?.caption
-//     )
-//     return res.status(201).json({ error: false, data: data })
-// }
+export const Image = async (req: Request, res: Response) => {
+    const data = await WhatsAppInstances.get(req.query.key as string)!.sendMediaFile(
+        req.body.id,
+        (req as any).file,
+        'image',
+        req.body?.caption
+    )
+    return res.status(201).json({ error: false, data: data })
+}
 
-// exports.Video = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
+// exports.Video = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'video',
@@ -28,8 +28,8 @@ export const Text = async (req: any, res: Response) => {
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.Audio = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
+// exports.Audio = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'audio'
@@ -37,8 +37,8 @@ export const Text = async (req: any, res: Response) => {
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.Document = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendMediaFile(
+// exports.Document = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendMediaFile(
 //         req.body.id,
 //         req.file,
 //         'document',
@@ -48,8 +48,8 @@ export const Text = async (req: any, res: Response) => {
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.Mediaurl = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendUrlMediaFile(
+// exports.Mediaurl = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendUrlMediaFile(
 //         req.body.id,
 //         req.body.url,
 //         req.body.type, // Types are [image, video, audio, document]
@@ -59,40 +59,40 @@ export const Text = async (req: any, res: Response) => {
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.Button = async (req, res) => {
+// exports.Button = async (req: Request, res: Response) => {
 //     // console.log(res.body)
-//     const data = await WhatsAppInstances.get(req.query.key).sendButtonMessage(
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendButtonMessage(
 //         req.body.id,
 //         req.body.btndata
 //     )
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.Contact = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendContactMessage(
+// exports.Contact = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendContactMessage(
 //         req.body.id,
 //         req.body.vcard
 //     )
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.List = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendListMessage(
+// exports.List = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendListMessage(
 //         req.body.id,
 //         req.body.msgdata
 //     )
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.MediaButton = async (req, res) => {
-//     const data = await WhatsAppInstances.get(req.query.key).sendMediaButtonMessage(
+// exports.MediaButton = async (req: Request, res: Response) => {
+//     const data = await WhatsAppInstances.get(req.query.key as string).sendMediaButtonMessage(
 //         req.body.id,
 //         req.body.btndata
 //     )
 //     return res.status(201).json({ error: false, data: data })
 // }
 
-// exports.SetStatus = async (req, res) => {
+// exports.SetStatus = async (req: Request, res: Response) => {
 //     const presenceList = [
 //         'unavailable',
 //         'available',
@@ -108,7 +108,7 @@ export const Text = async (req: any, res: Response) => {
 //         })
 //     }
 
-//     const data = await WhatsAppInstances.get(req.query.key)?.setStatus(
+//     const data = await WhatsAppInstances.get(req.query.key as string)?.setStatus(
 //         req.body.status,
 //         req.body.id
 //     )
