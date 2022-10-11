@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 // import APIError from '../errors/api.error'
 
+import { Request } from "express"
+
 const handler = (err: any, req: Request, res: any, next: any) => {
     const statusCode = err.statusCode ? err.statusCode : 500
 

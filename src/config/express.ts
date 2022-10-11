@@ -24,7 +24,6 @@ global.WhatsAppInstances = new Map<string, Client>()
 import routes from '../api/routes/'
 
 app.use('/', routes)
-// @ts-ignore
 app.use(error.handler)
 
 export default app
