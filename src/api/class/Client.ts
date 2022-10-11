@@ -174,6 +174,23 @@ export default class Client {
         return data
     }
 
+	async sendUrlMediaFile(to:string, url:string, type: any, mimeType:string, caption = '') {
+        await this.verifyId(this.getWhatsAppId(to))
+
+        const data = await this.instance.socket?.sendMessage(
+            this.getWhatsAppId(to),
+			//@ts-ignore
+            {
+                [type]: {
+                    url: url,
+                },
+                caption: caption,
+                mimetype: mimeType,
+            }
+        )
+        return data
+    }
+
 	async getInstanceDetail(key: string) {
 		return {
 			instance_key: key,
