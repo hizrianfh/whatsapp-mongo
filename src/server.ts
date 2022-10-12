@@ -9,16 +9,14 @@ import { Session } from './api/class/Session'
 import { connect } from './api/services/db'
 import { Db } from 'mongodb'
 
-let server: any;
-
 declare global {
   var mongoClient: Db;
 }
 
-server = app.listen(config.port, async () => {
+const server = app.listen(config.port, async () => {
   logger.info(`Listening on port ${config.port}`)
   const mongoConnection = await connect(process.env.MONGODB_URI!)
-  global.mongoClient = mongoConnection.db('whatsapp')
+  global.mongoClient = mongoConnection.db(process.env.DB_NAME)
   if (config.restoreSessionsOnStartup) {
     logger.info(`Restoring Sessions`)
     const session = new Session()

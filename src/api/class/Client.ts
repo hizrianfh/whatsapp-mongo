@@ -20,12 +20,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { makeMongoStore } from '../store';
 import { makeMongoAuthState } from '../state';
 import { Collection, Db } from 'mongodb';
+import { io } from '../../config/express';
 
 
 export default class Client {
 	key = '';
 	store!: Awaited<ReturnType<typeof makeMongoStore>>;
-	// socket: ReturnType<typeof makeWASocket> | null;
 	events: { event: string; on: () => void }[];
 	collection!: Collection
 	// handler: Handler | undefined;
@@ -57,12 +57,14 @@ export default class Client {
 				keys: makeCacheableSignalKeyStore(state.keys, logger)
 			},
 			logger: logger,
+			browser: [config.browser.browser, config.browser.platform, config.browser.version],
 			printQRInTerminal: true
 		});
 
 		this.store.bind(this.instance.socket.ev);
 
 		this.instance.socket.ev.on('messages.upsert', ({ messages, type }) => {
+			io.emit(`new-message-${this.key}`, messages[0])
 			if (type !== 'notify') return
 			for (const m of messages) {
 				if (m.key.fromMe) return
@@ -72,6 +74,10 @@ export default class Client {
 				}
 			}
 		})
+
+		this.instance.socket.ev.on("message-receipt.update", (test) =>
+			logger.debug(test, 'TESTSETST')
+		)
 
 		this.instance.socket.ev.on('connection.update', (update) => {
 			const { connection, lastDisconnect, receivedPendingNotifications, qr } = update;
@@ -159,37 +165,37 @@ export default class Client {
 	}
 
 	async sendMediaFile(to: string, file: any, type: string, caption = '', filename?: string) {
-        await this.verifyId(this.getWhatsAppId(to))
-        const data = await this.instance.socket?.sendMessage(
+		await this.verifyId(this.getWhatsAppId(to))
+		const data = await this.instance.socket?.sendMessage(
 			this.getWhatsAppId(to),
 			//@ts-ignore
-            {	
+			{
 				[type]: file.buffer,
 				mimetype: file.mimetype,
 				caption: caption,
 				ptt: type === 'audio' ? true : false,
-				fileName: filename ? filename : file.originalname		
+				fileName: filename ? filename : file.originalname
 			}
-        )
-        return data
-    }
+		)
+		return data
+	}
 
-	async sendUrlMediaFile(to:string, url:string, type: any, mimeType:string, caption = '') {
-        await this.verifyId(this.getWhatsAppId(to))
+	async sendUrlMediaFile(to: string, url: string, type: any, mimeType: string, caption = '') {
+		await this.verifyId(this.getWhatsAppId(to))
 
-        const data = await this.instance.socket?.sendMessage(
-            this.getWhatsAppId(to),
+		const data = await this.instance.socket?.sendMessage(
+			this.getWhatsAppId(to),
 			//@ts-ignore
-            {
-                [type]: {
-                    url: url,
-                },
-                caption: caption,
-                mimetype: mimeType,
-            }
-        )
-        return data
-    }
+			{
+				[type]: {
+					url: url,
+				},
+				caption: caption,
+				mimetype: mimeType,
+			}
+		)
+		return data
+	}
 
 	async getInstanceDetail(key: string) {
 		return {

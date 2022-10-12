@@ -34,7 +34,7 @@ const WEBHOOK_ENABLED = !!(
 // Webhook URL
 const WEBHOOK_URL =
     process.env.WEBHOOK_URL ||
-    'https://webhook.site/d0122a66-18a3-432d-b63f-4772b190dd72'
+    'https://webhook.site/3157a965-60e4-43f2-a76d-25e75a07ebcb'
 // Receive message content in webhook (Base64 format)
 const WEBHOOK_BASE64 = !!(
     process.env.WEBHOOK_BASE64 && process.env.WEBHOOK_BASE64 === 'true'
@@ -50,15 +50,6 @@ export default {
     },
     instance: {
         maxRetryQr: INSTANCE_MAX_RETRY_QR,
-    },
-    mongoose: {
-        enabled: MONGODB_ENABLED,
-        url: MONGODB_URL,
-        options: {
-            // useCreateIndex: true,
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        },
     },
     browser: {
         platform: CLIENT_PLATFORM,
