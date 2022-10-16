@@ -25,9 +25,6 @@ services:
             - PORT=${PORT}
             - MONGODB_ENABLED=${MONGODB_ENABLED}
             - MONGODB_URI=mongodb://mongodb:27017
-            - WEBHOOK_ENABLED=${WEBHOOK_ENABLED}
-            - WEBHOOK_URL=${WEBHOOK_URL}
-            - WEBHOOK_BASE64=${WEBHOOK_BASE64}
         volumes:
             - ./:/home/node/app
         working_dir: /home/node/app
