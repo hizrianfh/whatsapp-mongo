@@ -7,13 +7,12 @@ import type Client from "../api/class/Client";
 import exceptionHandler from "express-exception-handler";
 exceptionHandler.handle();
 import cors from "cors";
-import config from './config'
+import config from "./config";
 import { tokenVerification } from "../api/middlewares/tokenCheck";
 
 import error from "../api/middlewares/error";
 
 const app = express();
-
 
 const server = http.createServer(app);
 
@@ -21,11 +20,12 @@ const io = new Server(server, {
   cors: {
     origin: "*",
   },
+  path: "/whatsapp/socket.io",
 });
 
 io.on("connection", (socket) => {
   logger.info(`A user with id ${socket.id} is connected`);
-  
+
   socket.on("disconnect", () => {
     console.log(`socket ${socket.id} disconnected`);
   });
@@ -54,7 +54,7 @@ import routes from "../api/routes/";
 import { logger } from "../api/utils";
 
 if (config.protectRoutes) {
-  app.use(tokenVerification)
+  app.use(tokenVerification);
 }
 
 app.use("/", routes);
