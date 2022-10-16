@@ -19,8 +19,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
-  },
-  path: "/whatsapp/socket.io",
+  }
 });
 
 io.on("connection", (socket) => {
