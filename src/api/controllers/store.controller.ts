@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
 export const allChats = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) ?? 1
-  const perPage = Number(req.query.perPage) ?? 10
+  const page = Number(req.query.page) || 1
+  const perPage = Number(req.query.perPage) || 20
 
   const data = await WhatsAppInstances.get(
     req.query.key as string

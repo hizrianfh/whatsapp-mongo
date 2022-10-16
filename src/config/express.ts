@@ -7,6 +7,8 @@ import type Client from "../api/class/Client";
 import exceptionHandler from "express-exception-handler";
 exceptionHandler.handle();
 import cors from "cors";
+import config from './config'
+import { tokenVerification } from "../api/middlewares/tokenCheck";
 
 import error from "../api/middlewares/error";
 
@@ -50,6 +52,10 @@ global.WhatsAppInstances = new Map<string, Client>();
 
 import routes from "../api/routes/";
 import { logger } from "../api/utils";
+
+if (config.protectRoutes) {
+  app.use(tokenVerification)
+}
 
 app.use("/", routes);
 app.use(error.handler);

@@ -216,6 +216,7 @@ export default async (mongoDB: Db, key: string) => {
       const nextPage = `${process.env.APP_URL}/store/chats?key=${key}&page=${
         page + 1
       }&perPage=${perPage}`;
+      const totalPages = Math.ceil(docCount/perPage)
 
       const docs: any[] = [];
 
@@ -230,7 +231,10 @@ export default async (mongoDB: Db, key: string) => {
       return {
         docs,
         nextPage: lastPage ? null : nextPage,
+        currentPage: page,
+        perPage,
         lastPage,
+        totalPages
       };
     },
   };
