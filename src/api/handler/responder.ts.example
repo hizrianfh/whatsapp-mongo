@@ -1,0 +1,11 @@
+type autoResponder = {
+  key: string;
+  ans: string[] | string;
+};
+
+export const autoResponder: autoResponder[] = [
+  {
+    key: "Ping",
+    ans: ["PONG", "SAPI"],
+  },
+];

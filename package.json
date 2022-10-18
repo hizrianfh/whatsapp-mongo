@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "SET NODE_ENV=development & yarn ts-node-dev --respawn --transpile-only --rs ./src/server.ts",
-    "build": "rm -rf ./lib && tsc",
+    "build": "rm -rf ./lib && tsc && cp -a ./src/assets/. ./lib/assets",
     "start": "SET NODE_ENV=production & node ./lib/server.js"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@adiwajshing/baileys": "https://github.com/adiwajshing/Baileys.git",
+    "axios": "^1.1.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

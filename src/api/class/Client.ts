@@ -7,6 +7,7 @@ import makeWASocket, {
   makeCacheableSignalKeyStore,
   AnyMessageContent,
   AnyMediaMessageContent,
+  MessageRetryMap,
 } from "@adiwajshing/baileys";
 
 // import type Handler from './CommandHandler';
@@ -21,6 +22,7 @@ import { makeMongoStore } from "../store";
 import { makeMongoAuthState } from "../state";
 import { Collection, Db, ObjectId } from "mongodb";
 import { io } from "../../config/express";
+import { groupHandler, msgHandler } from "../handler";
 
 export default class Client {
   key = "";
@@ -54,6 +56,7 @@ export default class Client {
     const authCollection = mongoDB.collection(`auth-${this.key}`);
     this.collection = authCollection;
     const { state, saveCreds } = await makeMongoAuthState(authCollection);
+    const msgRetryCounterMap: MessageRetryMap = {};
     this.store = await makeMongoStore(mongoDB, this.key);
 
     this.instance.socket = makeWASocket({
@@ -64,12 +67,19 @@ export default class Client {
       logger: logger,
       browser: Browsers.macOS("Desktop"),
       syncFullHistory: true,
-      // browser: [
-      //   config.browser.browser,
-      //   config.browser.platform,
-      //   config.browser.version,
-      // ],
       printQRInTerminal: true,
+      msgRetryCounterMap,
+      getMessage: async (key) => {
+        if (this.store) {
+          const msg = await this.store.loadMessage(key.remoteJid!, key.id!);
+          return msg?.message || undefined;
+        }
+
+        // only if store is present
+        return {
+          conversation: "hello",
+        };
+      },
     });
 
     this.store.bind(this.instance.socket.ev);
@@ -80,13 +90,12 @@ export default class Client {
       if (type !== "notify") return;
       for (const m of messages) {
         if (m.key.fromMe) return;
-        if (
-          (m.message?.conversation || m.message?.extendedTextMessage?.text) ===
-          "PING"
-        ) {
-          this.instance.socket?.readMessages([m.key]);
-          this.instance.socket?.sendMessage(m.key.remoteJid!, { text: "PONG" });
-        }
+
+        if (m.key.remoteJid?.split("@")[1] === "s.whatsapp.net")
+          return msgHandler(m, this.instance.socket!);
+        else if (m.key.remoteJid?.split("@")[1] === "g.us")
+          return groupHandler(m, this.instance.socket!);
+        else return;
       }
     });
 
