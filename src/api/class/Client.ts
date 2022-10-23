@@ -87,16 +87,16 @@ export default class Client {
     this.instance.socket.ev.on("messages.upsert", ({ messages, type }) => {
       if (messages[0].key.remoteJid === "status@broadcast") return;
       io.emit(`new-message-${this.key}`, messages[0]);
-      if (type !== "notify") return;
-      for (const m of messages) {
-        if (m.key.fromMe) return;
+      // if (type !== "notify") return;
+      // for (const m of messages) {
+      //   if (m.key.fromMe) return;
 
-        if (m.key.remoteJid?.split("@")[1] === "s.whatsapp.net")
-          return msgHandler(m, this.instance.socket!);
-        else if (m.key.remoteJid?.split("@")[1] === "g.us")
-          return groupHandler(m, this.instance.socket!);
-        else return;
-      }
+      //   if (m.key.remoteJid?.split("@")[1] === "s.whatsapp.net")
+      //     return msgHandler(m, this.instance.socket!);
+      //   else if (m.key.remoteJid?.split("@")[1] === "g.us")
+      //     return groupHandler(m, this.instance.socket!);
+      //   else return;
+      // }
     });
 
     this.instance.socket.ev.on("connection.update", (update) => {
