@@ -67,7 +67,6 @@ export default async (mongoDB: Db, key: string) => {
     // TODO: Auto delete messages from db after certain time
 
     ev.on("messaging-history.set", async ({ messages }) => {
-      if ((await messagesCol.estimatedDocumentCount()) > 0) return;
       for (const msg of messages) {
         if (msg.message?.protocolMessage) return;
         await insertMessage(msg, true);
