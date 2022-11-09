@@ -1,5 +1,8 @@
 import { Boom } from "@hapi/boom";
-import { Browsers } from "@adiwajshing/baileys/lib/Utils";
+import {
+  Browsers,
+  useMultiFileAuthState,
+} from "@adiwajshing/baileys/lib/Utils";
 import makeWASocket, {
   DisconnectReason,
   WAMessage,
@@ -11,6 +14,7 @@ import makeWASocket, {
 } from "@adiwajshing/baileys";
 
 // import type Handler from './CommandHandler';
+import { join } from "path";
 
 import QRCode from "qrcode";
 import config from "../../config/config";
@@ -23,6 +27,10 @@ import { makeMongoAuthState } from "../state";
 import { Collection, Db, ObjectId } from "mongodb";
 import { io } from "../../config/express";
 import { groupHandler, msgHandler } from "../handler";
+
+const sessionsDir = (sessionId = "") => {
+  return join(__dirname, "..", "..", "..", "sessions", sessionId);
+};
 
 export default class Client {
   key = "";
@@ -53,9 +61,16 @@ export default class Client {
   }
 
   async init(mongoDB: Db) {
-    const authCollection = mongoDB.collection(`auth-${this.key}`);
+    let authCollection;
+    try {
+      authCollection = await mongoDB.createCollection(`auth-${this.key}`);
+    } catch (error) {
+      authCollection = mongoDB.collection(`auth-${this.key}`);
+    }
     this.collection = authCollection;
-    const { state, saveCreds } = await makeMongoAuthState(authCollection);
+    const { state, saveCreds } = await useMultiFileAuthState(
+      sessionsDir(`auth-${this.key}`)
+    );
     const msgRetryCounterMap: MessageRetryMap = {};
     this.store = await makeMongoStore(mongoDB, this.key);
 
@@ -99,7 +114,7 @@ export default class Client {
       // }
     });
 
-    this.instance.socket.ev.on("connection.update", (update) => {
+    this.instance.socket.ev.on("connection.update", async (update) => {
       const { connection, lastDisconnect, receivedPendingNotifications, qr } =
         update;
 
@@ -119,16 +134,18 @@ export default class Client {
           this.init(mongoDB);
           return;
         } else {
-          mongoDB
-            .collection(`messages-${this.key}`)
-            .drop()
-            .then(() => {
-              this.collection.drop().then(() => {
-                this.instance.online = false;
+          const collectionArray = (
+            await mongoDB.listCollections().toArray()
+          ).filter((col) => col.name.includes(this.key));
 
-                logger.info("STATE: Dropped collection");
-              });
-            });
+          for await (const col of collectionArray) {
+            await mongoDB.collection(col.name).drop();
+            logger.info(`Collection ${col.name} dropped.`);
+          }
+
+          this.instance.online = false;
+
+          logger.info("STATE: Dropped collections success");
         }
       } else if (connection === "open") {
         this.instance.online = true;

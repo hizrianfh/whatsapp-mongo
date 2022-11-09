@@ -67,6 +67,7 @@ export default async (mongoDB: Db, key: string) => {
     // TODO: Auto delete messages from db after certain time
 
     ev.on("messaging-history.set", async ({ messages }) => {
+      if (messages.length == 0) return;
       for (const msg of messages) {
         if (msg.message?.protocolMessage) return;
         await insertMessage(msg, true);
@@ -215,7 +216,7 @@ export default async (mongoDB: Db, key: string) => {
       const nextPage = `${process.env.APP_URL}/store/chats?key=${key}&page=${
         page + 1
       }&perPage=${perPage}`;
-      const totalPages = Math.ceil(docCount/perPage)
+      const totalPages = Math.ceil(docCount / perPage);
 
       const docs: any[] = [];
 
@@ -233,7 +234,7 @@ export default async (mongoDB: Db, key: string) => {
         currentPage: page,
         perPage,
         lastPage,
-        totalPages
+        totalPages,
       };
     },
   };
