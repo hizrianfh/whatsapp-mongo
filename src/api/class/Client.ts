@@ -36,7 +36,7 @@ export default class Client {
   key = "";
   store!: Awaited<ReturnType<typeof makeMongoStore>>;
   events: { event: string; on: () => void }[];
-  collection!: Collection;
+  collection!: Collection<Document>;
   // handler: Handler | undefined;
 
   instance: {
@@ -61,7 +61,7 @@ export default class Client {
   }
 
   async init(mongoDB: Db) {
-    let authCollection;
+    let authCollection: Collection<Document>;
     try {
       authCollection = await mongoDB.createCollection(`auth-${this.key}`);
     } catch (error) {
@@ -127,10 +127,16 @@ export default class Client {
       // }
 
       if (connection === "close") {
+        logger.info(
+          `Connection closed with code: ${
+            (lastDisconnect?.error as Boom)?.output?.statusCode
+          }`
+        );
         if (
           (lastDisconnect?.error as Boom)?.output?.statusCode !==
           DisconnectReason.loggedOut
         ) {
+          logger.info(`Reconnecting...`);
           this.init(mongoDB);
           return;
         } else {
