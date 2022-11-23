@@ -1,3 +1,4 @@
+import { rmSync } from "fs";
 import { Boom } from "@hapi/boom";
 import {
   Browsers,
@@ -37,6 +38,7 @@ export default class Client {
   store!: Awaited<ReturnType<typeof makeMongoStore>>;
   events: { event: string; on: () => void }[];
   collection!: Collection<Document>;
+  historyCount = 0;
   // handler: Handler | undefined;
 
   instance: {
@@ -97,6 +99,14 @@ export default class Client {
       },
     });
 
+    this.instance.socket.ev.on("messaging-history.set", async () => {
+      if (this.historyCount === 0) {
+        await mongoDB.collection(`messages-${this.key}`).drop();
+        console.log('history dropped')
+        this.historyCount++;
+      }
+    });
+
     this.store.bind(this.instance.socket.ev);
 
     this.instance.socket.ev.on("messages.upsert", ({ messages, type }) => {
@@ -142,7 +152,7 @@ export default class Client {
         } else {
           const collectionArray = (
             await mongoDB.listCollections().toArray()
-          ).filter((col) => col.name.includes(this.key));
+          ).filter((col) => col.name.includes(`auth-${this.key}`));
 
           for await (const col of collectionArray) {
             await mongoDB.collection(col.name).drop();
@@ -150,6 +160,7 @@ export default class Client {
           }
 
           this.instance.online = false;
+          rmSync(sessionsDir(`auth-${this.key}`), { recursive: true });
 
           logger.info("STATE: Dropped collections success");
         }
